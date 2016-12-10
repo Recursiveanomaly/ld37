@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerUnit : UnitBase
 {
+    public Vector3 m_cameraOffset;
 
     private void Update()
     {
@@ -29,11 +31,27 @@ public class PlayerUnit : UnitBase
             Room.Instance.MoveUnit(this, Grid.eDirection.kRight);
             playerMoved = true;
         }
+    }
 
-        if(playerMoved)
+    public void LevelUp()
+    {
+        m_currentLevel++;
+        Room.Instance.OnPlayerLeveledUp();
+    }
+
+    public override void OnUnitWasMoved()
+    {
+        base.OnUnitWasMoved();
+
+        Room.Instance.OnPlayerMoved();
+        if (Camera.main != null)
         {
-            Room.Instance.OnPlayerMoved();
+            Camera.main.transform.position = transform.position + m_cameraOffset;
         }
     }
 
+    protected override bool IsGoodGuy()
+    {
+        return true;
+    }
 }

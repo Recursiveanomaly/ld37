@@ -1,48 +1,182 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Room : SingletonMonoBehaviour<Room>
 {
-    public PlayerUnit m_player;
-    public List<EnemyUnit> m_enemies = new List<EnemyUnit>();
+    Grid m_grid = new Grid();
+    PlayerUnit m_player;
+    List<EnemyUnit> m_enemies = new List<EnemyUnit>();
+    List<GameObject> m_floorTiles = new List<GameObject>();
+    Dictionary<Grid.Coordinate, GameObject> m_walls = new Dictionary<Grid.Coordinate, GameObject>();
+    List<GameObject> m_doors = new List<GameObject>();
+
+    public PlayerUnit m_playerPrefab;
+    public EnemyUnit m_enemyPrefab;
+    public GameObject m_wallPrefab;
+    public GameObject m_floorPrefab;
+    public GameObject m_doorPrefab;
+
+    public List<Sprite> m_enemySprites = new List<Sprite>();
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        LoadLevel(LevelGenerator.GenerateLevel(1));
+    }
+
+    private void UnloadCurrentLevel()
+    {
+        // clean up floor tiles
+        foreach (GameObject floorTile in m_floorTiles)
+        {
+            GameObject.Destroy(floorTile);
+        }
+        m_floorTiles.Clear();
+
+        // clean up walls
+        foreach (GameObject wallObject in m_walls.Values)
+        {
+            GameObject.Destroy(wallObject);
+        }
+        m_walls.Clear();
+
+        // clean up doors
+        foreach (GameObject door in m_doors)
+        {
+            GameObject.Destroy(door);
+        }
+        m_doors.Clear();
+
+        // clean up enemies
+        foreach (EnemyUnit enemy in m_enemies)
+        {
+            GameObject.Destroy(enemy);
+        }
+        m_enemies.Clear();
+    }
+
+    public void OnPlayerLeveledUp()
+    {
+        foreach (EnemyUnit enemy in m_enemies)
+        {
+            enemy.OnPlayerLevelChanged(m_player);
+        }
+    }
+
+    public void LoadLevel(LevelDefinition levelDefiniton)
+    {
+        UnloadCurrentLevel();
+
+        // add the walkable areas
+        m_grid.SetGridPositions(levelDefiniton.m_mapValidCoordinates);
+        foreach (Grid.Coordinate coordinate in levelDefiniton.m_mapValidCoordinates)
+        {
+            GameObject floorTile = GameObject.Instantiate(m_floorPrefab, transform);
+            floorTile.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate);
+            m_floorTiles.Add(floorTile);
+        }
+
+        // add the walls
+        foreach (Grid.Coordinate coordinate in levelDefiniton.m_mapValidCoordinates)
+        {
+            TryAddWall(coordinate, 1, 0);
+            TryAddWall(coordinate, -1, 0);
+            TryAddWall(coordinate, 0, 1);
+            TryAddWall(coordinate, 0, -1);
+
+            TryAddWall(coordinate, 1, 1);
+            TryAddWall(coordinate, -1, 1);
+            TryAddWall(coordinate, 1, -1);
+            TryAddWall(coordinate, -1, -1);
+        }
+
+        // add the doors
+        foreach (Grid.Coordinate coordinate in levelDefiniton.m_doors)
+        {
+            GameObject door = GameObject.Instantiate(m_doorPrefab, transform);
+            door.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate);
+            m_doors.Add(door);
+        }
+
+        // add the enemies
+        foreach (LevelDefinition.EnemyDefinition enemyDefinition in levelDefiniton.m_enemies)
+        {
+            EnemyUnit enemyUnit = GameObject.Instantiate(m_enemyPrefab, transform);
+            enemyUnit.transform.localPosition = Grid.GetPositionFromCoordinate(enemyDefinition.m_startingCoordinate);
+            enemyUnit.m_spriteRenderer.sprite = enemyDefinition.m_sprite;
+            enemyUnit.m_currentLevel = enemyDefinition.m_level;
+            m_enemies.Add(enemyUnit);
+        }
+
+        // add the player
+        if (m_player == null)
+        {
+            m_player = GameObject.Instantiate(m_playerPrefab, transform);
+        }
+        if (m_player != null)
+        {
+            m_player.ResetForNewLevel();
+            m_grid.TrySetUnitCoordinate(m_player, levelDefiniton.m_playerStart);
+            m_player.LevelUp();
+        }
+    }
+
+    private void TryAddWall(Grid.Coordinate baseCoordinate, int xOffset, int yOffset)
+    {
+        Grid.Coordinate offsetCoordinate = new Grid.Coordinate(baseCoordinate);
+        offsetCoordinate.x += xOffset;
+        offsetCoordinate.y += yOffset;
+
+        if(!m_walls.ContainsKey(offsetCoordinate) && !m_grid.IsCoordinateWithinGrid(offsetCoordinate))
+        {
+            GameObject wallObject = GameObject.Instantiate(m_wallPrefab, transform);
+            wallObject.transform.localPosition = Grid.GetPositionFromCoordinate(offsetCoordinate);
+            m_walls.Add(offsetCoordinate, wallObject);
+        }
+    }
 
     public void OnPlayerMoved()
     {
         foreach(EnemyUnit enemyUnit in m_enemies)
         {
-            MoveUnit(enemyUnit, (Grid.eDirection)Random.Range(0, 4));
+            MoveUnit(enemyUnit, (Grid.eDirection)UnityEngine.Random.Range(0, 4));
         }
     }
 
     public void MoveUnit(UnitBase unit, Grid.eDirection direction)
     {
-        // attack any enemy in that slot
-
-        // attempt to move
+        Grid.Coordinate potentialCoordinate = new Grid.Coordinate(unit.m_coordinate);
         switch (direction)
         {
             case Grid.eDirection.kUp:
-                unit.m_coordinate.y += 1;
+                potentialCoordinate.y += 1;
                 break;
             case Grid.eDirection.kDown:
-                unit.m_coordinate.y -= 1;
+                potentialCoordinate.y -= 1;
                 break;
             case Grid.eDirection.kLeft:
-                unit.m_coordinate.x -= 1;
+                potentialCoordinate.x -= 1;
                 break;
             case Grid.eDirection.kRight:
-                unit.m_coordinate.x += 1;
+                potentialCoordinate.x += 1;
                 break;
             default:
                 break;
         }
 
-        // set new position
-        unit.transform.localPosition = Grid.GetPositionFromCoordinate(unit.m_coordinate);
-    }
+        UnitBase occupied = m_grid.GetUnitAtCoordinate(potentialCoordinate);
+        // attack any enemy in that slot
+        if(occupied != null && unit.IsEnemyOf(occupied))
+        {
 
-    Grid m_grid;
+        }
+
+        // attempt to move
+        m_grid.TrySetUnitCoordinate(unit, potentialCoordinate);
+    }
 }
 
 public class Grid
@@ -55,16 +189,76 @@ public class Grid
         kRight,
     }
 
-    public class Coordinate
+    public class Coordinate : IEquatable<Coordinate>
     {
         public int x;
         public int y;
+        private Coordinate m_coordinate;
+
+        public Coordinate(Coordinate m_coordinate)
+        {
+            x = m_coordinate.x;
+            y = m_coordinate.y;
+        }
 
         public Coordinate(int _x, int _y)
         {
             x = _x;
             y = _y;
         }
+
+        public bool Equals(Coordinate other)
+        {
+            return other != null && x == other.x && y == other.y;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is Coordinate)
+            {
+                Coordinate other = obj as Coordinate;
+                return x == other.x && y == other.y;
+            }
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (x.GetHashCode() * 10) + y.GetHashCode();
+        }
+    }
+
+    HashSet<Coordinate> m_gridValidArea = new HashSet<Coordinate>();
+    Dictionary<Coordinate, UnitBase> m_unitPositions = new Dictionary<Coordinate, UnitBase>();
+
+    public void SetGridPositions(List<Coordinate> validCoordinates)
+    {
+        m_gridValidArea.Clear();
+        foreach(Coordinate coordinate in validCoordinates)
+        {
+            if(!m_gridValidArea.Contains(coordinate))
+            {
+                m_gridValidArea.Add(coordinate);
+            }
+        }
+    }
+
+    public bool TrySetUnitCoordinate(UnitBase unit, Coordinate coordinate)
+    {
+        if (!m_gridValidArea.Contains(coordinate))
+        {
+            return false;
+        }
+        if (m_unitPositions.ContainsKey(coordinate))
+        {
+            return false;
+        }
+        m_unitPositions.Remove(unit.m_coordinate);
+        m_unitPositions.Add(coordinate, unit);
+        unit.m_coordinate = coordinate;
+        // set new position
+        unit.OnUnitWasMoved();
+        return true;
     }
 
     public static Vector3 GetPositionFromCoordinate(Coordinate coordinate)
@@ -75,5 +269,17 @@ public class Grid
     public static Coordinate GetCoordinateFromPosition(Vector3 vector)
     {
         return new Coordinate((int)vector.x, (int)vector.y);
+    }
+
+    public UnitBase GetUnitAtCoordinate(Coordinate potentialCoordinate)
+    {
+        UnitBase unit = null;
+        m_unitPositions.TryGetValue(potentialCoordinate, out unit);
+        return unit;
+    }
+
+    public bool IsCoordinateWithinGrid(Coordinate potentialCoordinate)
+    {
+        return m_gridValidArea.Contains(potentialCoordinate);
     }
 }
