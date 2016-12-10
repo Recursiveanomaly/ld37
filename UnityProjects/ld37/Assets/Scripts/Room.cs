@@ -10,13 +10,15 @@ public class Room : SingletonMonoBehaviour<Room>
     List<EnemyUnit> m_enemies = new List<EnemyUnit>();
     List<GameObject> m_floorTiles = new List<GameObject>();
     Dictionary<Grid.Coordinate, GameObject> m_walls = new Dictionary<Grid.Coordinate, GameObject>();
-    List<GameObject> m_doors = new List<GameObject>();
+    List<UnitBase> m_obstacles = new List<UnitBase>();
 
     public PlayerUnit m_playerPrefab;
     public EnemyUnit m_enemyPrefab;
     public GameObject m_wallPrefab;
     public GameObject m_floorPrefab;
-    public GameObject m_doorPrefab;
+
+    // obstacle prefabs
+    public DoorUnit m_doorPrefab;
 
     public List<Sprite> m_enemySprites = new List<Sprite>();
 
@@ -43,12 +45,12 @@ public class Room : SingletonMonoBehaviour<Room>
         }
         m_walls.Clear();
 
-        // clean up doors
-        foreach (GameObject door in m_doors)
+        // clean up obstacles
+        foreach (UnitBase obstacle in m_obstacles)
         {
-            GameObject.Destroy(door);
+            GameObject.Destroy(obstacle.gameObject);
         }
-        m_doors.Clear();
+        m_obstacles.Clear();
 
         // clean up enemies
         foreach (EnemyUnit enemy in m_enemies)
@@ -93,24 +95,25 @@ public class Room : SingletonMonoBehaviour<Room>
             TryAddWall(coordinate, -1, -1);
         }
 
-        // add the doors
-        foreach (Grid.Coordinate coordinate in levelDefiniton.m_doors)
+        // add the obstacles
+        foreach (KeyValuePair<Grid.Coordinate, LevelDefinition.eObstacleType> obstacleDefinition in levelDefiniton.m_obstacles)
         {
-            GameObject door = GameObject.Instantiate(m_doorPrefab, transform);
-            door.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate);
-            m_doors.Add(door);
+            UnitBase obstacle = GameObject.Instantiate(GetObstaclePrefab(obstacleDefinition.Value), transform);
+            obstacle.transform.localPosition = Grid.GetPositionFromCoordinate(obstacleDefinition.Key);
+            m_obstacles.Add(obstacle);
+            m_grid.TrySetUnitCoordinate(obstacle, obstacleDefinition.Key);
         }
 
         // add the enemies
         foreach (LevelDefinition.EnemyDefinition enemyDefinition in levelDefiniton.m_enemies)
         {
             EnemyUnit enemyUnit = GameObject.Instantiate(m_enemyPrefab, transform);
-            enemyUnit.transform.localPosition = Grid.GetPositionFromCoordinate(enemyDefinition.m_startingCoordinate);
             enemyUnit.m_spriteRenderer.sprite = enemyDefinition.m_sprite;
             enemyUnit.m_currentLevel = enemyDefinition.m_level;
             m_enemies.Add(enemyUnit);
+            m_grid.TrySetUnitCoordinate(enemyUnit, enemyDefinition.m_startingCoordinate);
         }
-
+        
         // add the player
         if (m_player == null)
         {
@@ -122,6 +125,19 @@ public class Room : SingletonMonoBehaviour<Room>
             m_grid.TrySetUnitCoordinate(m_player, levelDefiniton.m_playerStart);
             m_player.LevelUp();
         }
+    }
+
+    private UnitBase GetObstaclePrefab(LevelDefinition.eObstacleType obstacleType)
+    {
+        switch (obstacleType)
+        {
+            case LevelDefinition.eObstacleType.kDoor:
+                return m_doorPrefab;
+            default:
+                Debug.LogError("Error in Room.GetObstaclePrefab - no prefab found for " + obstacleType);
+                break;
+        }
+        return m_doorPrefab;
     }
 
     private void TryAddWall(Grid.Coordinate baseCoordinate, int xOffset, int yOffset)
@@ -142,7 +158,10 @@ public class Room : SingletonMonoBehaviour<Room>
     {
         foreach(EnemyUnit enemyUnit in m_enemies)
         {
-            MoveUnit(enemyUnit, (Grid.eDirection)UnityEngine.Random.Range(0, 4));
+            if(!enemyUnit.m_isDead)
+            {
+                MoveUnit(enemyUnit, (Grid.eDirection)UnityEngine.Random.Range(0, 4));
+            }
         }
     }
 
@@ -169,9 +188,10 @@ public class Room : SingletonMonoBehaviour<Room>
 
         UnitBase occupied = m_grid.GetUnitAtCoordinate(potentialCoordinate);
         // attack any enemy in that slot
-        if(occupied != null && unit.IsEnemyOf(occupied))
+        if(occupied != null)
         {
-
+            occupied.OnCollision(unit);
+            unit.OnCollision(occupied);
         }
 
         // attempt to move

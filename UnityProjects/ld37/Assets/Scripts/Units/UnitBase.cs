@@ -23,9 +23,23 @@ public class UnitBase : MonoBehaviour
         return false;
     }
 
+    public virtual void KillUnit()
+    {
+
+    }
+
+    public virtual void AwardKill()
+    {
+
+    }
+
     public bool IsEnemyOf(UnitBase occupied)
     {
         return IsGoodGuy() != occupied.IsGoodGuy();
+    }
+
+    public virtual void OnCollision(UnitBase other)
+    {
     }
 
     public virtual void OnUnitWasMoved()

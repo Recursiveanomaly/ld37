@@ -31,6 +31,18 @@ public class PlayerUnit : UnitBase
             Room.Instance.MoveUnit(this, Grid.eDirection.kRight);
             playerMoved = true;
         }
+
+        if(playerMoved)
+        {
+            Room.Instance.OnPlayerMoved();
+        }
+    }
+
+    public override void AwardKill()
+    {
+        base.AwardKill();
+
+        LevelUp();
     }
 
     public void LevelUp()
@@ -43,7 +55,6 @@ public class PlayerUnit : UnitBase
     {
         base.OnUnitWasMoved();
 
-        Room.Instance.OnPlayerMoved();
         if (Camera.main != null)
         {
             Camera.main.transform.position = transform.position + m_cameraOffset;

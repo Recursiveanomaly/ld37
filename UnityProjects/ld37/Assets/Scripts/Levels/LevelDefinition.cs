@@ -11,8 +11,13 @@ public class LevelDefinition
         public Sprite m_sprite;
     }
 
+    public enum eObstacleType
+    {
+        kDoor,
+    }
+
     public Grid.Coordinate m_playerStart;
     public List<EnemyDefinition> m_enemies = new List<EnemyDefinition>();
     public List<Grid.Coordinate> m_mapValidCoordinates = new List<Grid.Coordinate>();
-    public List<Grid.Coordinate> m_doors = new List<Grid.Coordinate>();
+    public List<KeyValuePair<Grid.Coordinate, eObstacleType>> m_obstacles = new List<KeyValuePair<Grid.Coordinate, eObstacleType>>();
 }

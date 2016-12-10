@@ -40,7 +40,8 @@ public class LevelGenerator
                     break;
                 case "D":
                     // Door
-                    level.m_doors.Add(new Grid.Coordinate(x, -y));
+                    level.m_mapValidCoordinates.Add(new Grid.Coordinate(x, -y));
+                    level.m_obstacles.Add(new KeyValuePair<Grid.Coordinate, LevelDefinition.eObstacleType>(new Grid.Coordinate(x, -y), LevelDefinition.eObstacleType.kDoor));
                     break;
                 case "0":
                     // Player

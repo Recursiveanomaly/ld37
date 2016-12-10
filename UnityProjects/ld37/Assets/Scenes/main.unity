@@ -253,7 +253,7 @@ MonoBehaviour:
     type: 2}
   m_floorPrefab: {fileID: 1339078835735778, guid: 4bd27cab1509a9c43b25c11b82fedb1e,
     type: 2}
-  m_doorPrefab: {fileID: 1543875615836706, guid: 74f1a4126451bbe49aabbb081a8cf838,
+  m_doorPrefab: {fileID: 114582649216176496, guid: 74f1a4126451bbe49aabbb081a8cf838,
     type: 2}
   m_enemySprites:
   - {fileID: 21300000, guid: 755cd7e63b46a2543b3b2ed8a5165ba5, type: 3}

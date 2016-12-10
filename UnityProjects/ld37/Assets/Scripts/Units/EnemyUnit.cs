@@ -5,11 +5,15 @@ using UnityEngine;
 public class EnemyUnit : UnitBase
 {
     public SpriteRenderer m_spriteRenderer;
+    public Sprite m_graveSprite;
 
     public Color m_green;
     public Color m_yellow;
     public Color m_orange;
     public Color m_red;
+    public Color m_deathColor;
+
+    public bool m_isDead = false;
 
     //float m_animationTimer = 0;
     //float c_animationMaxTime = 1f;
@@ -26,6 +30,11 @@ public class EnemyUnit : UnitBase
 
     public void OnPlayerLevelChanged(PlayerUnit player)
     {
+        if(m_isDead)
+        {
+            return;
+        }
+
         int difference = player.m_currentLevel - m_currentLevel;
         if(difference > 0)
         {
@@ -47,7 +56,50 @@ public class EnemyUnit : UnitBase
 
     public override void OnUnitWasMoved()
     {
-        m_spriteRenderer.flipX = !m_spriteRenderer.flipX;
         base.OnUnitWasMoved();
+        if (m_isDead)
+        {
+            return;
+        }
+
+        m_spriteRenderer.flipX = !m_spriteRenderer.flipX;
+    }
+
+    public override void KillUnit()
+    {
+        base.KillUnit();
+        if (m_isDead)
+        {
+            return;
+        }
+
+        m_spriteRenderer.sprite = m_graveSprite;
+        m_spriteRenderer.color = m_deathColor;
+        m_isDead = true;
+    }
+
+    public override void OnCollision(UnitBase other)
+    {
+        base.OnCollision(other);
+
+        if (m_isDead)
+        {
+            return;
+        }
+
+        if (IsEnemyOf(other))
+        {
+            // someone is going to die
+            int difference = other.m_currentLevel - m_currentLevel;
+            if (difference >= 0)
+            {
+                other.AwardKill();
+                KillUnit();
+            }
+            else
+            {
+                other.KillUnit();
+            }
+        }
     }
 }
