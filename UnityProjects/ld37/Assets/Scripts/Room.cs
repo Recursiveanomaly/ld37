@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Room : SingletonMonoBehaviour<Room>
 {
-    Grid m_grid = new Grid();
+    public Grid m_grid = new Grid();
     PlayerUnit m_player;
     List<EnemyUnit> m_enemies = new List<EnemyUnit>();
     List<GameObject> m_floorTiles = new List<GameObject>();
@@ -100,6 +100,23 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             UnitBase obstacle = GameObject.Instantiate(GetObstaclePrefab(obstacleDefinition.Value), transform);
             obstacle.transform.localPosition = Grid.GetPositionFromCoordinate(obstacleDefinition.Key);
+            if(obstacle is DoorUnit)
+            {
+                // link up paired doors
+                foreach(UnitBase otherObstical in m_obstacles)
+                {
+                    if(otherObstical is DoorUnit)
+                    {
+                        DoorUnit otherDoor = otherObstical as DoorUnit;
+                        if(otherDoor.m_linkedDoor == null)
+                        {
+                            DoorUnit thisDoor = obstacle as DoorUnit;
+                            otherDoor.m_linkedDoor = thisDoor;
+                            thisDoor.m_linkedDoor = otherDoor;
+                        }
+                    }
+                }
+            }
             m_obstacles.Add(obstacle);
             m_grid.TrySetUnitCoordinate(obstacle, obstacleDefinition.Key);
         }
