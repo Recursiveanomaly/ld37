@@ -140,6 +140,7 @@ GameObject:
   m_Component:
   - component: {fileID: 58489743}
   - component: {fileID: 58489744}
+  - component: {fileID: 58489745}
   m_Layer: 0
   m_Name: scarab-beetle
   m_TagString: Untagged
@@ -195,6 +196,18 @@ SpriteRenderer:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
+--- !u!114 &58489745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 58489742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395b9aeda71d73d4895398dfbbf7346f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_currentLevel: 0
 --- !u!1 &96258107
 GameObject:
   m_ObjectHideFlags: 0
@@ -680,6 +693,7 @@ GameObject:
   m_Component:
   - component: {fileID: 539636862}
   - component: {fileID: 539636863}
+  - component: {fileID: 539636864}
   m_Layer: 0
   m_Name: bat
   m_TagString: Untagged
@@ -735,6 +749,18 @@ SpriteRenderer:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
+--- !u!114 &539636864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 539636861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395b9aeda71d73d4895398dfbbf7346f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_currentLevel: 0
 --- !u!1 &577010760
 GameObject:
   m_ObjectHideFlags: 0
@@ -1653,6 +1679,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1306776139}
   - component: {fileID: 1306776140}
+  - component: {fileID: 1306776141}
   m_Layer: 0
   m_Name: scorpion
   m_TagString: Untagged
@@ -1708,6 +1735,18 @@ SpriteRenderer:
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
+--- !u!114 &1306776141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1306776138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 395b9aeda71d73d4895398dfbbf7346f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_currentLevel: 0
 --- !u!1 &1341306625
 GameObject:
   m_ObjectHideFlags: 0
@@ -2078,8 +2117,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f06b2a7440992f48999b5b3b6034a64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_player: {fileID: 0}
-  m_enemies: []
+  m_player: {fileID: 664836793}
+  m_enemies:
+  - {fileID: 539636864}
+  - {fileID: 58489745}
+  - {fileID: 1306776141}
 --- !u!4 &1515744865
 Transform:
   m_ObjectHideFlags: 0
