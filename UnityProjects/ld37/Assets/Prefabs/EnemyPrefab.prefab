@@ -54,12 +54,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_currentLevel: 0
   m_spriteRenderer: {fileID: 212489395336857170}
-  m_graveSprite: {fileID: 21300000, guid: e7fff8d3bcb9612429b12ccca75f66cd, type: 3}
+  m_graveSprite: {fileID: 21300000, guid: 854bb0a8034772a4fbdcdcd3d54d133f, type: 3}
   m_green: {r: 0.25365108, g: 0.89705884, b: 0, a: 1}
   m_yellow: {r: 0.95720077, g: 0.9705882, b: 0, a: 1}
   m_orange: {r: 0.88235295, g: 0.4929006, b: 0, a: 1}
   m_red: {r: 0.9044118, g: 0, b: 0, a: 1}
-  m_deathColor: {r: 0, g: 0, b: 0, a: 0}
+  m_deathColor: {r: 0.5647059, g: 0.5647059, b: 0.5647059, a: 1}
   m_isDead: 0
 --- !u!212 &212489395336857170
 SpriteRenderer:
