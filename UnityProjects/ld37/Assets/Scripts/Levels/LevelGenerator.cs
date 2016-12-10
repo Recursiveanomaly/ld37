@@ -75,13 +75,23 @@ public class LevelGenerator
         return level;
     }
 
-    const string c_levelMap = 
-      @"XXDXXXXXXX
-        X___XXX3_X
-        X1_______D
-        X________X
-        XDXX_0___X
-        XXXX___XXX
-        XXXX_2_XXX
-        XXXXXXDXXX";
+    const string c_levelMap =
+      @"XXXXXXXXXXXXXXXXXXXXXXXXXX
+X________________________X
+X________________________X
+X________________________X
+X________________________X
+X________________________X
+X____2______1____________X
+X________________________X
+X________________________X
+X________________________X
+X____3______0____________X
+X________________________X
+X________________________X
+X________________________X
+X________________________X
+X________________________X
+X_____D_________D________X
+XXXXXXXXXXXXXXXXXXXXXXXXXX";
 }
