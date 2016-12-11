@@ -203,7 +203,7 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             m_player = GameObject.Instantiate(m_playerPrefab, transform);
             m_player.ResetForNewGame();
-            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(19, 22));
+            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(15, 24));
         }
         m_player.LevelUp();
     }
@@ -214,7 +214,7 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             return m_player.m_coordinate;
         }
-        return new Grid.Coordinate(19,22);
+        return new Grid.Coordinate(15,24);
     }
 
     private UnitBase GetObstaclePrefab(LevelDefinition.eObstacleType obstacleType)

@@ -25,7 +25,7 @@ public class UnitBase : MonoBehaviour
     public virtual void ResetForNewGame()
     {
         m_currentLevel = 0;
-        transform.localPosition = Grid.GetPositionFromCoordinate(new Grid.Coordinate(19, 22));
+        transform.localPosition = Grid.GetPositionFromCoordinate(new Grid.Coordinate(15, 24));
         m_coordinate = m_startingCoordinate = Grid.GetCoordinateFromPosition(transform.localPosition);
     }
 
