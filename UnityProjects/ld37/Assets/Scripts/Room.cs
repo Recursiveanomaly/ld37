@@ -8,6 +8,7 @@ public class Room : SingletonMonoBehaviour<Room>
 {
     public Grid m_grid = new Grid();
     public MapLogic m_mapLogic = new MapLogic();
+    int m_currentPhase;
 
     PlayerUnit m_player;
     List<EnemyUnit> m_enemies = new List<EnemyUnit>();
@@ -19,6 +20,12 @@ public class Room : SingletonMonoBehaviour<Room>
     public EnemyUnit m_enemyPrefab;
     public GameObject m_wallPrefab;
     public GameObject m_floorPrefab;
+
+    public void Grow()
+    {
+        m_currentPhase++;
+        AdditiveLoadLevel(LevelGenerator.GenerateLevel(m_currentPhase));
+    }
 
     // obstacle prefabs
     public DoorUnit m_doorPrefab;
@@ -65,6 +72,7 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             m_player.ResetForNewGame();
         }
+        m_currentPhase = -1;
     }
 
     public void OnPlayerLeveledUp()
@@ -77,17 +85,37 @@ public class Room : SingletonMonoBehaviour<Room>
 
     public void AdditiveLoadLevel(LevelDefinition levelDefiniton)
     {
-        // add the walkable areas
-        m_grid.SetGridPositions(levelDefiniton.m_mapValidCoordinates);
-        foreach (Grid.Coordinate coordinate in levelDefiniton.m_mapValidCoordinates)
+        // clean up walls
+        foreach (GameObject wallObject in m_walls.Values)
         {
-            GameObject floorTile = GameObject.Instantiate(m_floorPrefab, transform);
-            floorTile.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate);
-            m_floorTiles.Add(floorTile);
+            GameObject.Destroy(wallObject.gameObject);
+        }
+        m_walls.Clear();
+
+        // clean up dead enemies
+        for (int i = m_enemies.Count - 1; i >= 0; i--)
+        {
+            if (m_enemies[i].m_isDead)
+            {
+                GameObject.Destroy(m_enemies[i].gameObject);
+                m_enemies.RemoveAt(i);
+            }
         }
 
-        // add the walls
+        // add the walkable areas
         foreach (Grid.Coordinate coordinate in levelDefiniton.m_mapValidCoordinates)
+        {
+            if(!m_grid.IsCoordinateWithinGrid(coordinate))
+            {
+                GameObject floorTile = GameObject.Instantiate(m_floorPrefab, transform);
+                floorTile.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate);
+                m_floorTiles.Add(floorTile);
+            }
+        }
+        m_grid.SetGridPositions(levelDefiniton.m_mapValidCoordinates);
+
+        // add the walls
+        foreach (Grid.Coordinate coordinate in m_grid.m_gridValidArea)
         {
             TryAddWall(coordinate, 1, 0);
             TryAddWall(coordinate, -1, 0);
@@ -101,30 +129,41 @@ public class Room : SingletonMonoBehaviour<Room>
         }
 
         // add the obstacles
+        List<DoorUnit> doors = new List<DoorUnit>();
         foreach (KeyValuePair<Grid.Coordinate, LevelDefinition.eObstacleType> obstacleDefinition in levelDefiniton.m_obstacles)
         {
             UnitBase obstacle = GameObject.Instantiate(GetObstaclePrefab(obstacleDefinition.Value), transform);
             obstacle.transform.localPosition = Grid.GetPositionFromCoordinate(obstacleDefinition.Key);
             if(obstacle is DoorUnit)
             {
-                // link up paired doors
-                foreach(UnitBase otherObstical in m_obstacles)
-                {
-                    if(otherObstical is DoorUnit)
-                    {
-                        DoorUnit otherDoor = otherObstical as DoorUnit;
-                        if(otherDoor.m_linkedDoor == null)
-                        {
-                            DoorUnit thisDoor = obstacle as DoorUnit;
-                            otherDoor.m_linkedDoor = thisDoor;
-                            thisDoor.m_linkedDoor = otherDoor;
-                            break;
-                        }
-                    }
-                }
+                doors.Add(obstacle as DoorUnit);
             }
             m_obstacles.Add(obstacle);
             m_grid.TrySetUnitCoordinate(obstacle, obstacleDefinition.Key);
+        }
+
+        // link up random doors
+        while(doors.Count > 0)
+        {
+            if(doors.Count == 1)
+            {
+                // this is the complete level door, leave the linked door null
+                doors.RemoveAt(0);
+            }
+            else
+            {
+                // pair up some doors
+                int randomDoor1 = UnityEngine.Random.Range(0, doors.Count - 1);
+                DoorUnit door1 = doors[randomDoor1];
+                doors.RemoveAt(randomDoor1);
+
+                int randomDoor2 = UnityEngine.Random.Range(0, doors.Count - 1);
+                DoorUnit door2 = doors[randomDoor2];
+                doors.RemoveAt(randomDoor2);
+
+                door1.m_linkedDoor = door2;
+                door2.m_linkedDoor = door1;
+            }
         }
 
         // add the enemies
@@ -157,8 +196,8 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             m_player = GameObject.Instantiate(m_playerPrefab, transform);
             m_player.ResetForNewGame();
+            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
         }
-        m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
         m_player.LevelUp();
     }
 
@@ -182,6 +221,12 @@ public class Room : SingletonMonoBehaviour<Room>
                 break;
         }
         return m_doorPrefab;
+    }
+
+    public void DestroyObstacle(UnitBase obstacle)
+    {
+        m_obstacles.Remove(obstacle);
+        GameObject.Destroy(obstacle.gameObject);
     }
 
     private void TryAddWall(Grid.Coordinate baseCoordinate, int xOffset, int yOffset)
@@ -313,12 +358,11 @@ public class Grid
         }
     }
 
-    HashSet<Coordinate> m_gridValidArea = new HashSet<Coordinate>();
+    public HashSet<Coordinate> m_gridValidArea = new HashSet<Coordinate>();
     Dictionary<Coordinate, UnitBase> m_unitPositions = new Dictionary<Coordinate, UnitBase>();
 
     public void SetGridPositions(List<Coordinate> validCoordinates)
     {
-        m_gridValidArea.Clear();
         foreach(Coordinate coordinate in validCoordinates)
         {
             if(!m_gridValidArea.Contains(coordinate))
@@ -336,7 +380,11 @@ public class Grid
         }
         if (m_unitPositions.ContainsKey(coordinate))
         {
-            return false;
+            UnitBase otherUnit = m_unitPositions[coordinate];
+            if(!otherUnit.CanShareSpace(unit))
+            {
+                return false;
+            }
         }
         m_unitPositions.Remove(unit.m_coordinate);
         m_unitPositions.Add(coordinate, unit);
@@ -344,6 +392,14 @@ public class Grid
         // set new position
         unit.OnUnitWasMoved();
         return true;
+    }
+
+    public void RemoveUnit(UnitBase unit)
+    {
+        if(unit != null && unit.m_coordinate != null && GetUnitAtCoordinate(unit.m_coordinate) == unit)
+        {
+            m_unitPositions.Remove(unit.m_coordinate);
+        }
     }
 
     public static Vector3 GetPositionFromCoordinate(Coordinate coordinate)

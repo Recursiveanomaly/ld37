@@ -19,6 +19,12 @@ public class DoorUnit : UnitBase
                 Room.Instance.m_grid.TrySetUnitCoordinate(other, adjacentCoordinate);
             }
         }
+        else
+        {
+            // move on to the next growth phase
+            Room.Instance.Grow();
+            Room.Instance.DestroyObstacle(this);
+        }
     }
 
     public Grid.Coordinate GetOpenAdjacentSpot()
@@ -64,4 +70,9 @@ public class DoorUnit : UnitBase
         }
         return null;
     }
+
+    //public override bool CanShareSpace(UnitBase unit)
+    //{
+    //    return unit is PlayerUnit;
+    //}
 }

@@ -15,7 +15,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
     public void StartNewGame()
     {
         Room.Instance.ResetRoom();
-        Room.Instance.AdditiveLoadLevel(LevelGenerator.GenerateLevel(0));
+        Room.Instance.Grow();
     }
 
     private void Update()

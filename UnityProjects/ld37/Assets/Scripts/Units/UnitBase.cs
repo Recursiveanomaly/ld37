@@ -11,12 +11,22 @@ public class UnitBase : MonoBehaviour
 
     protected void Awake()
     {
-        m_coordinate = m_startingCoordinate = Grid.GetCoordinateFromPosition(transform.localPosition);
+        ResetForNewGame();
+    }
+
+    protected void OnDestroy()
+    {
+        if(Room.Instance != null && Room.Instance.m_grid != null)
+        {
+            Room.Instance.m_grid.RemoveUnit(this);
+        }
     }
 
     public virtual void ResetForNewGame()
     {
         m_currentLevel = 0;
+        transform.localPosition = Grid.GetPositionFromCoordinate(new Grid.Coordinate(16, 16));
+        m_coordinate = m_startingCoordinate = Grid.GetCoordinateFromPosition(transform.localPosition);
     }
 
     protected virtual bool IsGoodGuy()
@@ -52,5 +62,10 @@ public class UnitBase : MonoBehaviour
     public virtual void OnPlayerMoved()
     {
 
+    }
+
+    public virtual bool CanShareSpace(UnitBase unit)
+    {
+        return false;
     }
 }
