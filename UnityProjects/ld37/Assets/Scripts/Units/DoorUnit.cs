@@ -6,10 +6,8 @@ public class DoorUnit : UnitBase
 {
     public DoorUnit m_linkedDoor;
 
-    public override void OnCollision(UnitBase other)
+    public override bool OnCollision(UnitBase other)
     {
-        base.OnCollision(other);
-
         if(m_linkedDoor != null)
         {
             // find an open spot next to the other door
@@ -25,6 +23,8 @@ public class DoorUnit : UnitBase
             Room.Instance.Grow();
             Room.Instance.DestroyObstacle(this);
         }
+
+        return base.OnCollision(other);
     }
 
     public Grid.Coordinate GetOpenAdjacentSpot()

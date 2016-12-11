@@ -49,8 +49,9 @@ public class UnitBase : MonoBehaviour
         return IsGoodGuy() != occupied.IsGoodGuy();
     }
 
-    public virtual void OnCollision(UnitBase other)
+    public virtual bool OnCollision(UnitBase other)
     {
+        return false;
     }
 
     public virtual void OnUnitWasMoved()

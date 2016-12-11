@@ -78,13 +78,12 @@ public class EnemyUnit : UnitBase
         m_isDead = true;
     }
 
-    public override void OnCollision(UnitBase other)
+    public override bool OnCollision(UnitBase other)
     {
-        base.OnCollision(other);
-
         if (m_isDead)
         {
-            return;
+            Room.Instance.DestroyEnemy(this);
+            return false;
         }
 
         if (IsEnemyOf(other))
@@ -95,12 +94,15 @@ public class EnemyUnit : UnitBase
             {
                 other.AwardKill();
                 KillUnit();
+                return true;
             }
             else
             {
                 other.KillUnit();
             }
         }
+
+        return base.OnCollision(other);
     }
 
     public override void OnPlayerMoved()

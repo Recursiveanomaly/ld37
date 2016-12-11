@@ -238,6 +238,12 @@ public class Room : SingletonMonoBehaviour<Room>
         GameObject.Destroy(obstacle.gameObject);
     }
 
+    internal void DestroyEnemy(EnemyUnit enemyUnit)
+    {
+        m_enemies.Remove(enemyUnit);
+        GameObject.Destroy(enemyUnit.gameObject);
+    }
+
     private void TryAddWall(Grid.Coordinate baseCoordinate, int xOffset, int yOffset)
     {
         Grid.Coordinate offsetCoordinate = new Grid.Coordinate(baseCoordinate);
@@ -297,14 +303,18 @@ public class Room : SingletonMonoBehaviour<Room>
     {
         UnitBase occupied = m_grid.GetUnitAtCoordinate(coordinate);
         // attack any enemy in that slot
+        bool collisionStoppedMove = false;
         if (occupied != null)
         {
-            occupied.OnCollision(unit);
-            unit.OnCollision(occupied);
+            collisionStoppedMove |= occupied.OnCollision(unit);
+            collisionStoppedMove |= unit.OnCollision(occupied);
         }
 
         // attempt to move
-        m_grid.TrySetUnitCoordinate(unit, coordinate);
+        if(!collisionStoppedMove)
+        {
+            m_grid.TrySetUnitCoordinate(unit, coordinate);
+        }
     }
 }
 

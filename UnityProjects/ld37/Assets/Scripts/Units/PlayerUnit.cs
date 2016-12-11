@@ -13,32 +13,32 @@ public class PlayerUnit : UnitBase
 
         if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
-            Room.Instance.OnPlayerMoved();
+            //Room.Instance.OnPlayerMoved();
             Room.Instance.MoveUnit(this, Grid.eDirection.kUp);
             playerMoved = true;
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            Room.Instance.OnPlayerMoved();
+            //Room.Instance.OnPlayerMoved();
             Room.Instance.MoveUnit(this, Grid.eDirection.kDown);
             playerMoved = true;
         }
         else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            Room.Instance.OnPlayerMoved();
+            //Room.Instance.OnPlayerMoved();
             Room.Instance.MoveUnit(this, Grid.eDirection.kLeft);
             playerMoved = true;
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
-            Room.Instance.OnPlayerMoved();
+            //Room.Instance.OnPlayerMoved();
             Room.Instance.MoveUnit(this, Grid.eDirection.kRight);
             playerMoved = true;
         }
 
         if(playerMoved)
         {
-            //Room.Instance.OnPlayerMoved();
+            Room.Instance.OnPlayerMoved();
         }
     }
 
