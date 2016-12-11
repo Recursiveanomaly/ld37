@@ -42,6 +42,13 @@ public class PlayerUnit : UnitBase
         }
     }
 
+    public override void KillUnit()
+    {
+        // game over man, game over
+        GameMaster.Instance.OnGameOver();
+        base.KillUnit();
+    }
+
     public override void AwardKill()
     {
         base.AwardKill();

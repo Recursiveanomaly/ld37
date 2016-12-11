@@ -159,13 +159,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   growthPhaseZero:
-  - {fileID: 4900000, guid: 4e0a396d1de37e642a4b2a49fe7eb06e, type: 3}
+  - {fileID: 4900000, guid: 3bfa87a68a9e4b14ca4e1029abf08c04, type: 3}
+  - {fileID: 4900000, guid: fc7fdea807e2b0a4abb20f0ae5a95273, type: 3}
+  - {fileID: 4900000, guid: 3de37ca2609d8164aba4c7724db02a26, type: 3}
   growthPhaseOne:
-  - {fileID: 4900000, guid: 4e0a396d1de37e642a4b2a49fe7eb06e, type: 3}
+  - {fileID: 4900000, guid: 83557950b49f5004296d41bd59fce267, type: 3}
+  - {fileID: 4900000, guid: b163f2cd9d1e4dd448b103faf172fc7d, type: 3}
+  - {fileID: 4900000, guid: 5550149a069f648448ac1bcd36bc5caa, type: 3}
   growthPhaseTwo:
-  - {fileID: 4900000, guid: 4e0a396d1de37e642a4b2a49fe7eb06e, type: 3}
+  - {fileID: 4900000, guid: dc3af045e8ff3de44815f363ec593cf1, type: 3}
+  - {fileID: 4900000, guid: b8fc6e8248195174f8aebb10e83d12d5, type: 3}
+  - {fileID: 4900000, guid: 67bbaa0b3a3b5474faa148a7f2d5de50, type: 3}
   growthPhaseThree:
-  - {fileID: 4900000, guid: 4e0a396d1de37e642a4b2a49fe7eb06e, type: 3}
+  - {fileID: 4900000, guid: 323050b830d0f6d4393f8e67b7b592ea, type: 3}
+  - {fileID: 4900000, guid: bda6037308b44ae4eafdb0cd74ae5774, type: 3}
+  - {fileID: 4900000, guid: 4984152d6fb046e418b98cde9837c4f1, type: 3}
 --- !u!4 &127827090
 Transform:
   m_ObjectHideFlags: 0
@@ -260,7 +268,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1425873073}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10, y: 23, z: -10}
+  m_LocalPosition: {x: 16, y: 16, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

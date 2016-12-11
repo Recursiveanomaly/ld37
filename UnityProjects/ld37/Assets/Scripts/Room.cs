@@ -25,26 +25,25 @@ public class Room : SingletonMonoBehaviour<Room>
 
     public List<Sprite> m_enemySprites = new List<Sprite>();
 
-    protected override void Awake()
+    public void ResetRoom()
     {
-        base.Awake();
-
-        LoadLevel(LevelGenerator.GenerateLevel(0));
+        UnloadCurrentLevel();
     }
 
     private void UnloadCurrentLevel()
     {
+        m_grid = new Grid();
         // clean up floor tiles
         foreach (GameObject floorTile in m_floorTiles)
         {
-            GameObject.Destroy(floorTile);
+            GameObject.Destroy(floorTile.gameObject);
         }
         m_floorTiles.Clear();
 
         // clean up walls
         foreach (GameObject wallObject in m_walls.Values)
         {
-            GameObject.Destroy(wallObject);
+            GameObject.Destroy(wallObject.gameObject);
         }
         m_walls.Clear();
 
@@ -58,9 +57,14 @@ public class Room : SingletonMonoBehaviour<Room>
         // clean up enemies
         foreach (EnemyUnit enemy in m_enemies)
         {
-            GameObject.Destroy(enemy);
+            GameObject.Destroy(enemy.gameObject);
         }
         m_enemies.Clear();
+
+        if(m_player != null)
+        {
+            m_player.ResetForNewGame();
+        }
     }
 
     public void OnPlayerLeveledUp()
@@ -71,10 +75,8 @@ public class Room : SingletonMonoBehaviour<Room>
         }
     }
 
-    public void LoadLevel(LevelDefinition levelDefiniton)
+    public void AdditiveLoadLevel(LevelDefinition levelDefiniton)
     {
-        UnloadCurrentLevel();
-
         // add the walkable areas
         m_grid.SetGridPositions(levelDefiniton.m_mapValidCoordinates);
         foreach (Grid.Coordinate coordinate in levelDefiniton.m_mapValidCoordinates)
@@ -154,10 +156,10 @@ public class Room : SingletonMonoBehaviour<Room>
         if (m_player == null)
         {
             m_player = GameObject.Instantiate(m_playerPrefab, transform);
-            m_player.ResetForNewLevel();
-            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
-            m_player.LevelUp();
+            m_player.ResetForNewGame();
         }
+        m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
+        m_player.LevelUp();
     }
 
     public Grid.Coordinate GetPlayerCoordinate()
@@ -198,11 +200,16 @@ public class Room : SingletonMonoBehaviour<Room>
 
     public void OnPlayerMoved()
     {
+        List<UnitBase> obstacles = new List<UnitBase>();
+        obstacles.AddRange(m_obstacles);
         foreach (UnitBase obstacle in m_obstacles)
         {
             obstacle.OnPlayerMoved();
         }
-        foreach (EnemyUnit enemyUnit in m_enemies)
+
+        List<EnemyUnit> enemies = new List<EnemyUnit>();
+        enemies.AddRange(m_enemies);
+        foreach (EnemyUnit enemyUnit in enemies)
         {
             enemyUnit.OnPlayerMoved();
         }

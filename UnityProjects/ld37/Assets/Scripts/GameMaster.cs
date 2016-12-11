@@ -1,7 +1,34 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameMaster : SingletonMonoBehaviour<GameMaster>
 {
+
+    override protected void Awake()
+    {
+        m_triggerNewGame = true;
+    }
+
+    bool m_triggerNewGame = false;
+    public void StartNewGame()
+    {
+        Room.Instance.ResetRoom();
+        Room.Instance.AdditiveLoadLevel(LevelGenerator.GenerateLevel(0));
+    }
+
+    private void Update()
+    {
+        if(m_triggerNewGame)
+        {
+            m_triggerNewGame = false;
+            StartNewGame();
+        }        
+    }
+
+    public void OnGameOver()
+    {
+        m_triggerNewGame = true;
+    }
 }

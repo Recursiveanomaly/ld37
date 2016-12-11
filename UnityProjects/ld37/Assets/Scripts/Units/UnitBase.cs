@@ -7,13 +7,14 @@ public class UnitBase : MonoBehaviour
 {
     public int m_currentLevel;
     public Grid.Coordinate m_coordinate;
+    Grid.Coordinate m_startingCoordinate;
 
     protected void Awake()
     {
-        m_coordinate = Grid.GetCoordinateFromPosition(transform.localPosition);
+        m_coordinate = m_startingCoordinate = Grid.GetCoordinateFromPosition(transform.localPosition);
     }
 
-    public virtual void ResetForNewLevel()
+    public virtual void ResetForNewGame()
     {
         m_currentLevel = 0;
     }
