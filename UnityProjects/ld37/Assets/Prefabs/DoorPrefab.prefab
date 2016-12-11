@@ -54,6 +54,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_currentLevel: 0
   m_linkedDoor: {fileID: 0}
+  m_brownOne: {r: 0.7176471, g: 0.4509804, b: 0.21960784, a: 1}
+  m_brownTwo: {r: 0.54509807, g: 0.34117648, b: 0.16470589, a: 1}
+  m_brownThree: {r: 0.32941177, g: 0.20784314, b: 0.105882354, a: 1}
+  m_brownFour: {r: 0.49803922, g: 0.16078432, b: 0.11372549, a: 1}
+  m_spriteRenderer: {fileID: 212975994796609956}
+  growthPhaseSpawnedIn: 0
 --- !u!212 &212975994796609956
 SpriteRenderer:
   m_ObjectHideFlags: 1

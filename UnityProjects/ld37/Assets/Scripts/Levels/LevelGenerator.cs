@@ -7,6 +7,7 @@ public class LevelGenerator
     public static LevelDefinition GenerateLevel(int difficulty)
     {
         LevelDefinition newLevel = ParseMap(GrowthController.Instance.GetRandomMap(difficulty), difficulty);
+        newLevel.m_difficulty = difficulty;
         return newLevel;
     }
 

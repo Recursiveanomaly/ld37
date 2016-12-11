@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class LevelDefinition
 {
+    public int m_difficulty;
+
     public class EnemyDefinition
     {
         public int m_level;

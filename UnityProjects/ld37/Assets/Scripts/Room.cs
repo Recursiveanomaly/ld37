@@ -155,6 +155,8 @@ public class Room : SingletonMonoBehaviour<Room>
             if(doors.Count == 1)
             {
                 // this is the complete level door, leave the linked door null
+                DoorUnit finalDoor = doors[0];
+                finalDoor.SetColor(levelDefiniton.m_difficulty);
                 doors.RemoveAt(0);
             }
             else
@@ -170,6 +172,8 @@ public class Room : SingletonMonoBehaviour<Room>
 
                 door1.m_linkedDoor = door2;
                 door2.m_linkedDoor = door1;
+                door1.SetColor(levelDefiniton.m_difficulty);
+                door2.SetColor(levelDefiniton.m_difficulty);
             }
         }
 
