@@ -59,10 +59,10 @@ public class PlayerUnit : UnitBase
     {
         base.OnUnitWasMoved();
 
-        if (Camera.main != null)
-        {
-            Camera.main.transform.position = transform.position + m_cameraOffset;
-        }
+        //if (Camera.main != null)
+        //{
+        //    Camera.main.transform.position = transform.position + m_cameraOffset;
+        //}
     }
 
     protected override bool IsGoodGuy()

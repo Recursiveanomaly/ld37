@@ -15,8 +15,7 @@ public class LevelDefinition
     {
         kDoor,
     }
-
-    public Grid.Coordinate m_playerStart;
+    
     public List<EnemyDefinition> m_enemies = new List<EnemyDefinition>();
     public List<Grid.Coordinate> m_mapValidCoordinates = new List<Grid.Coordinate>();
     public List<KeyValuePair<Grid.Coordinate, eObstacleType>> m_obstacles = new List<KeyValuePair<Grid.Coordinate, eObstacleType>>();

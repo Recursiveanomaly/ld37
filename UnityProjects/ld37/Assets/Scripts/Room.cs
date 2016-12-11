@@ -29,7 +29,7 @@ public class Room : SingletonMonoBehaviour<Room>
     {
         base.Awake();
 
-        LoadLevel(LevelGenerator.GenerateLevel(1));
+        LoadLevel(LevelGenerator.GenerateLevel(0));
     }
 
     private void UnloadCurrentLevel()
@@ -116,6 +116,7 @@ public class Room : SingletonMonoBehaviour<Room>
                             DoorUnit thisDoor = obstacle as DoorUnit;
                             otherDoor.m_linkedDoor = thisDoor;
                             thisDoor.m_linkedDoor = otherDoor;
+                            break;
                         }
                     }
                 }
@@ -130,19 +131,31 @@ public class Room : SingletonMonoBehaviour<Room>
             EnemyUnit enemyUnit = GameObject.Instantiate(m_enemyPrefab, transform);
             enemyUnit.m_spriteRenderer.sprite = enemyDefinition.m_sprite;
             enemyUnit.m_currentLevel = enemyDefinition.m_level;
-            m_enemies.Add(enemyUnit);
-            m_grid.TrySetUnitCoordinate(enemyUnit, enemyDefinition.m_startingCoordinate);
+            Grid.Coordinate startingCoordinate = enemyDefinition.m_startingCoordinate;
+            if(startingCoordinate == null)
+            {
+                // find a random position
+                startingCoordinate = m_grid.GetRandomOpenPosition();
+            }
+
+            if (startingCoordinate == null)
+            {
+                Debug.LogError("Error in Room.LoadLevel - no open spot found to place monster");
+                GameObject.Destroy(enemyUnit);
+            }
+            else
+            {
+                m_enemies.Add(enemyUnit);
+                m_grid.TrySetUnitCoordinate(enemyUnit, startingCoordinate);
+            }
         }
         
         // add the player
         if (m_player == null)
         {
             m_player = GameObject.Instantiate(m_playerPrefab, transform);
-        }
-        if (m_player != null)
-        {
             m_player.ResetForNewLevel();
-            m_grid.TrySetUnitCoordinate(m_player, levelDefiniton.m_playerStart);
+            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
             m_player.LevelUp();
         }
     }
@@ -346,5 +359,25 @@ public class Grid
     public bool IsCoordinateWithinGrid(Coordinate potentialCoordinate)
     {
         return m_gridValidArea.Contains(potentialCoordinate);
+    }
+
+    public Coordinate GetRandomOpenPosition()
+    {
+        List<Coordinate> potentialSpots = new List<Coordinate>();
+        potentialSpots.AddRange(m_gridValidArea);
+
+        while(potentialSpots.Count > 0)
+        {
+            int randomIndex = UnityEngine.Random.Range(0, potentialSpots.Count - 1);
+
+            Coordinate potentialCoordinate = potentialSpots[randomIndex];
+            potentialSpots.RemoveAt(randomIndex);
+
+            if(GetUnitAtCoordinate(potentialCoordinate) == null)
+            {
+                return potentialCoordinate;
+            }
+        }
+        return null;
     }
 }
