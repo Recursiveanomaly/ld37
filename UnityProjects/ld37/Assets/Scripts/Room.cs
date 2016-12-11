@@ -99,15 +99,15 @@ public class Room : SingletonMonoBehaviour<Room>
         }
         m_walls.Clear();
 
-        // clean up dead enemies
-        for (int i = m_enemies.Count - 1; i >= 0; i--)
-        {
-            if (m_enemies[i].m_isDead)
-            {
-                GameObject.Destroy(m_enemies[i].gameObject);
-                m_enemies.RemoveAt(i);
-            }
-        }
+        //// clean up dead enemies
+        //for (int i = m_enemies.Count - 1; i >= 0; i--)
+        //{
+        //    if (m_enemies[i].m_isDead)
+        //    {
+        //        GameObject.Destroy(m_enemies[i].gameObject);
+        //        m_enemies.RemoveAt(i);
+        //    }
+        //}
 
         // add the walkable areas
         foreach (Grid.Coordinate coordinate in levelDefiniton.m_mapValidCoordinates)
