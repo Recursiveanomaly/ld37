@@ -191,7 +191,13 @@ public class Room : SingletonMonoBehaviour<Room>
             if(startingCoordinate == null)
             {
                 // find a random position
-                startingCoordinate = m_grid.GetRandomOpenPosition();
+                float avoidDistance = 2;
+                if(m_player.m_currentLevel - enemyUnit.m_currentLevel < 0)
+                {
+                    // spawn stronger enemies farther away
+                    avoidDistance += Mathf.Min(3, enemyUnit.m_currentLevel - m_player.m_currentLevel);
+                }
+                startingCoordinate = m_grid.GetRandomOpenPosition(m_player.m_coordinate, avoidDistance);
             }
 
             if (startingCoordinate == null)
@@ -375,6 +381,15 @@ public class Grid
             }
             return Room.Instance.m_grid.IsCoordinateWithinGrid(this);
         }
+
+        public float Distance(Coordinate other)
+        {
+            if(other == null)
+            {
+                return 0;
+            }
+            return Vector2.Distance(new Vector2(x, y), new Vector2(other.x, other.y));
+        }
     }
 
     public HashSet<Coordinate> m_gridValidArea = new HashSet<Coordinate>();
@@ -443,7 +458,7 @@ public class Grid
         return m_gridValidArea.Contains(potentialCoordinate);
     }
 
-    public Coordinate GetRandomOpenPosition()
+    public Coordinate GetRandomOpenPosition(Coordinate avoidCoordinate, float avoidDistance)
     {
         List<Coordinate> potentialSpots = new List<Coordinate>();
         potentialSpots.AddRange(m_gridValidArea);
@@ -455,9 +470,28 @@ public class Grid
             Coordinate potentialCoordinate = potentialSpots[randomIndex];
             potentialSpots.RemoveAt(randomIndex);
 
+            if(avoidCoordinate != null && avoidDistance > 0 && potentialCoordinate.Distance(avoidCoordinate) <= avoidDistance)
+            {
+                continue;
+            }
+
             if(GetUnitAtCoordinate(potentialCoordinate) == null)
             {
                 return potentialCoordinate;
+            }
+        }
+
+        if(avoidCoordinate != null)
+        {
+            // try again closer
+            if(avoidDistance - 1f > 0f)
+            {
+                return GetRandomOpenPosition(avoidCoordinate, avoidDistance - 1f);
+            }
+            else
+            {
+                // try anything
+                return GetRandomOpenPosition(null, 0);
             }
         }
         return null;
