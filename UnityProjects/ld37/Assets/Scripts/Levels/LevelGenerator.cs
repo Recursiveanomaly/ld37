@@ -22,7 +22,7 @@ public class LevelGenerator
         map = map.Replace("\t", "");
         map = map.Replace(" ", "");
         int x = 0;
-        int y = 0;
+        int y = -32;
         while(map.Length > 0)
         {
             string front = map.Substring(0, 1);

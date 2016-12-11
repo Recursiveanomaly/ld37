@@ -47,4 +47,9 @@ public class UnitBase : MonoBehaviour
         // set new position
         transform.localPosition = Grid.GetPositionFromCoordinate(m_coordinate);
     }
+
+    public virtual void OnPlayerMoved()
+    {
+
+    }
 }

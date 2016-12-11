@@ -102,4 +102,30 @@ public class EnemyUnit : UnitBase
             }
         }
     }
+
+    public override void OnPlayerMoved()
+    {
+        base.OnPlayerMoved();
+
+        if (!m_isDead)
+        {
+            // try to move towards the player
+            LinkedList<Grid.Coordinate> path = Room.Instance.m_mapLogic.FindPath(new Grid.Coordinate(m_coordinate), new Grid.Coordinate(Room.Instance.GetPlayerCoordinate()), this);
+            if(path != null && path.Count > 1 && path.First != null && path.First.Next != null)
+            {
+                Grid.Coordinate firstStep = path.First.Next.Value;
+                if(firstStep != null)
+                {
+                    Room.Instance.MoveUnit(this, firstStep);
+                }
+            }
+            else
+            {
+                Debug.LogError("Error in EnemyUnit.OnPlayerMoved - no path found to player.");
+            }
+
+
+            //Room.Instance.MoveUnit(this, (Grid.eDirection)UnityEngine.Random.Range(0, 4));
+        }
+    }
 }

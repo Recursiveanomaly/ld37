@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SettlersEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,8 @@ using UnityEngine;
 public class Room : SingletonMonoBehaviour<Room>
 {
     public Grid m_grid = new Grid();
+    public MapLogic m_mapLogic = new MapLogic();
+
     PlayerUnit m_player;
     List<EnemyUnit> m_enemies = new List<EnemyUnit>();
     List<GameObject> m_floorTiles = new List<GameObject>();
@@ -144,6 +147,15 @@ public class Room : SingletonMonoBehaviour<Room>
         }
     }
 
+    public Grid.Coordinate GetPlayerCoordinate()
+    {
+        if(m_player != null)
+        {
+            return m_player.m_coordinate;
+        }
+        return new Grid.Coordinate(16,16);
+    }
+
     private UnitBase GetObstaclePrefab(LevelDefinition.eObstacleType obstacleType)
     {
         switch (obstacleType)
@@ -173,12 +185,13 @@ public class Room : SingletonMonoBehaviour<Room>
 
     public void OnPlayerMoved()
     {
-        foreach(EnemyUnit enemyUnit in m_enemies)
+        foreach (UnitBase obstacle in m_obstacles)
         {
-            if(!enemyUnit.m_isDead)
-            {
-                MoveUnit(enemyUnit, (Grid.eDirection)UnityEngine.Random.Range(0, 4));
-            }
+            obstacle.OnPlayerMoved();
+        }
+        foreach (EnemyUnit enemyUnit in m_enemies)
+        {
+            enemyUnit.OnPlayerMoved();
         }
     }
 
@@ -203,16 +216,21 @@ public class Room : SingletonMonoBehaviour<Room>
                 break;
         }
 
-        UnitBase occupied = m_grid.GetUnitAtCoordinate(potentialCoordinate);
+        MoveUnit(unit, potentialCoordinate);
+    }
+
+    public void MoveUnit(UnitBase unit, Grid.Coordinate coordinate)
+    {
+        UnitBase occupied = m_grid.GetUnitAtCoordinate(coordinate);
         // attack any enemy in that slot
-        if(occupied != null)
+        if (occupied != null)
         {
             occupied.OnCollision(unit);
             unit.OnCollision(occupied);
         }
 
         // attempt to move
-        m_grid.TrySetUnitCoordinate(unit, potentialCoordinate);
+        m_grid.TrySetUnitCoordinate(unit, coordinate);
     }
 }
 
@@ -226,7 +244,7 @@ public class Grid
         kRight,
     }
 
-    public class Coordinate : IEquatable<Coordinate>
+    public class Coordinate : IEquatable<Coordinate>, IPathNode<UnitBase>
     {
         public int x;
         public int y;
@@ -262,6 +280,16 @@ public class Grid
         public override int GetHashCode()
         {
             return (x.GetHashCode() * 10) + y.GetHashCode();
+        }
+
+        public bool IsWalkable(UnitBase inContext)
+        {
+            UnitBase occupied = Room.Instance.m_grid.GetUnitAtCoordinate(this);
+            if(occupied != null && !occupied.IsEnemyOf(inContext))
+            {
+                return false;
+            }
+            return Room.Instance.m_grid.IsCoordinateWithinGrid(this);
         }
     }
 
