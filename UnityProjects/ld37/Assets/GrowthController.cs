@@ -47,6 +47,17 @@ public class GrowthController : SingletonMonoBehaviour<GrowthController>
 
     public List<int> GetMonsters(int growthPhase)
     {
-        return new List<int>() { 1, 2, 3 };
+        switch (growthPhase)
+        {
+            default:
+            case 0:
+                return new List<int>() { 1, 2, 3 };
+            case 1:
+                return new List<int>() { 4, 4, 5, 7, 8 };
+            case 2:
+                return new List<int>() { 9, 9, 12, 13, 17 };
+            case 3:
+                return new List<int>() { 13, 13, 14, 15, 16, 18, 19 };
+        }
     }
 }

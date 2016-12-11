@@ -24,7 +24,14 @@ public class Room : SingletonMonoBehaviour<Room>
     public void Grow()
     {
         m_currentPhase++;
-        AdditiveLoadLevel(LevelGenerator.GenerateLevel(m_currentPhase));
+        if (m_currentPhase >= 4)
+        {
+            GameMaster.Instance.StartNewGame();
+        }
+        else
+        {
+            AdditiveLoadLevel(LevelGenerator.GenerateLevel(m_currentPhase));
+        }
     }
 
     // obstacle prefabs
