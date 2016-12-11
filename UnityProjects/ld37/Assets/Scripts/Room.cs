@@ -173,6 +173,14 @@ public class Room : SingletonMonoBehaviour<Room>
             }
         }
 
+        // add the player
+        if (m_player == null)
+        {
+            m_player = GameObject.Instantiate(m_playerPrefab, transform);
+            m_player.ResetForNewGame();
+            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
+        }
+
         // add the enemies
         foreach (LevelDefinition.EnemyDefinition enemyDefinition in levelDefiniton.m_enemies)
         {
@@ -197,15 +205,9 @@ public class Room : SingletonMonoBehaviour<Room>
                 m_grid.TrySetUnitCoordinate(enemyUnit, startingCoordinate);
             }
         }
-        
-        // add the player
-        if (m_player == null)
-        {
-            m_player = GameObject.Instantiate(m_playerPrefab, transform);
-            m_player.ResetForNewGame();
-            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(15, 24));
-        }
-        m_player.LevelUp();
+
+        // this will trigger enemy color change
+        OnPlayerLeveledUp();
     }
 
     public Grid.Coordinate GetPlayerCoordinate()
@@ -214,7 +216,7 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             return m_player.m_coordinate;
         }
-        return new Grid.Coordinate(15,24);
+        return new Grid.Coordinate(16,16);
     }
 
     private UnitBase GetObstaclePrefab(LevelDefinition.eObstacleType obstacleType)

@@ -57,7 +57,7 @@ public class GrowthController : SingletonMonoBehaviour<GrowthController>
             case 2:
                 return new List<int>() { 9, 9, 12, 13, 17 };
             case 3:
-                return new List<int>() { 13, 13, 14, 15, 16, 18, 19 };
+                return new List<int>() { 13, 14, 15, 15, 16, 19, 25 };
         }
     }
 }
