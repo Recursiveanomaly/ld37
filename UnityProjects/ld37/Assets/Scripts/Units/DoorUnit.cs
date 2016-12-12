@@ -20,7 +20,7 @@ public class DoorUnit : UnitBase
             Grid.Coordinate adjacentCoordinate = m_linkedDoor.GetOpenAdjacentSpot();
             if(adjacentCoordinate != null)
             {
-                Room.Instance.m_grid.TrySetUnitCoordinate(other, adjacentCoordinate);
+                Room.Instance.m_grid.TrySetUnitCoordinate(other, adjacentCoordinate, true);
             }
         }
         else

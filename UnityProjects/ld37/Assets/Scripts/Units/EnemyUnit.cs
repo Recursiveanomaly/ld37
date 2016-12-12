@@ -54,9 +54,9 @@ public class EnemyUnit : UnitBase
         }
     }
 
-    public override void OnUnitWasMoved()
+    public override void OnUnitWasMoved(bool warp, float delay)
     {
-        base.OnUnitWasMoved();
+        base.OnUnitWasMoved(warp, 0.1f);
         if (m_isDead)
         {
             return;
@@ -118,7 +118,7 @@ public class EnemyUnit : UnitBase
                 Grid.Coordinate firstStep = path.First.Next.Value;
                 if(firstStep != null)
                 {
-                    Room.Instance.MoveUnit(this, firstStep);
+                    Room.Instance.MoveUnit(this, firstStep, false);
                 }
             }
             else

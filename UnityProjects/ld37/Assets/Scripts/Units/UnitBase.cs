@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -54,10 +55,20 @@ public class UnitBase : MonoBehaviour
         return false;
     }
 
-    public virtual void OnUnitWasMoved()
+    public virtual void OnUnitWasMoved(bool warp, float delay)
     {
         // set new position
-        transform.localPosition = Grid.GetPositionFromCoordinate(m_coordinate);
+        if(!warp)
+        {
+            Sequence sequence = DOTween.Sequence();
+            sequence.PrependInterval(delay);
+            sequence.Append(transform.DOMove(Grid.GetPositionFromCoordinate(m_coordinate), 0.15f));
+            sequence.Play();
+        }
+        else
+        {
+            transform.localPosition = Grid.GetPositionFromCoordinate(m_coordinate);
+        }
     }
 
     public virtual void OnPlayerMoved()

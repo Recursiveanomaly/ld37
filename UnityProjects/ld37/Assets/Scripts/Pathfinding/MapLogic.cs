@@ -6,8 +6,8 @@ public class MapLogic
 {
     private SettlersEngine.SpatialAStar<Grid.Coordinate, UnitBase> m_aStarPathfinder;
 
-    const int c_width = 32;
-    const int c_height = 32;
+    const int c_width = 33;
+    const int c_height = 33;
 
     Grid.Coordinate[,] m_pathfindingGrid = null;
 

@@ -146,7 +146,7 @@ public class Room : SingletonMonoBehaviour<Room>
                 doors.Add(obstacle as DoorUnit);
             }
             m_obstacles.Add(obstacle);
-            m_grid.TrySetUnitCoordinate(obstacle, obstacleDefinition.Key);
+            m_grid.TrySetUnitCoordinate(obstacle, obstacleDefinition.Key, true);
         }
 
         // link up random doors
@@ -182,7 +182,7 @@ public class Room : SingletonMonoBehaviour<Room>
         {
             m_player = GameObject.Instantiate(m_playerPrefab, transform);
             m_player.ResetForNewGame();
-            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16));
+            m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16), true);
         }
 
         // add the enemies
@@ -212,7 +212,7 @@ public class Room : SingletonMonoBehaviour<Room>
             else
             {
                 m_enemies.Add(enemyUnit);
-                m_grid.TrySetUnitCoordinate(enemyUnit, startingCoordinate);
+                m_grid.TrySetUnitCoordinate(enemyUnit, startingCoordinate, true);
             }
         }
 
@@ -306,10 +306,10 @@ public class Room : SingletonMonoBehaviour<Room>
                 break;
         }
 
-        MoveUnit(unit, potentialCoordinate);
+        MoveUnit(unit, potentialCoordinate, false);
     }
 
-    public void MoveUnit(UnitBase unit, Grid.Coordinate coordinate)
+    public void MoveUnit(UnitBase unit, Grid.Coordinate coordinate, bool warp)
     {
         UnitBase occupied = m_grid.GetUnitAtCoordinate(coordinate);
         // attack any enemy in that slot
@@ -323,7 +323,7 @@ public class Room : SingletonMonoBehaviour<Room>
         // attempt to move
         if(!collisionStoppedMove)
         {
-            m_grid.TrySetUnitCoordinate(unit, coordinate);
+            m_grid.TrySetUnitCoordinate(unit, coordinate, warp);
         }
     }
 }
@@ -410,7 +410,7 @@ public class Grid
         }
     }
 
-    public bool TrySetUnitCoordinate(UnitBase unit, Coordinate coordinate)
+    public bool TrySetUnitCoordinate(UnitBase unit, Coordinate coordinate, bool warp)
     {
         if (!m_gridValidArea.Contains(coordinate))
         {
@@ -428,7 +428,7 @@ public class Grid
         m_unitPositions.Add(coordinate, unit);
         unit.m_coordinate = coordinate;
         // set new position
-        unit.OnUnitWasMoved();
+        unit.OnUnitWasMoved(warp, 0f);
         return true;
     }
 
