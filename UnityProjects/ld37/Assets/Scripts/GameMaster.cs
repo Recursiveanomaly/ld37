@@ -16,8 +16,7 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
     bool m_triggerNewGame = false;
     public void StartNewGame()
     {
-        Room.Instance.ResetRoom();
-        Room.Instance.Grow();
+        m_triggerNewGame = true;
     }
 
     private void Update()
@@ -25,12 +24,13 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
         if(m_triggerNewGame)
         {
             m_triggerNewGame = false;
-            StartNewGame();
+            Room.Instance.ResetRoom();
+            Room.Instance.Grow();
         }        
     }
 
     public void OnGameOver()
     {
-        m_triggerNewGame = true;
+        GameOverWindow.Instance.Show();
     }
 }

@@ -21,15 +21,21 @@ public class Room : SingletonMonoBehaviour<Room>
     public GameObject m_wallPrefab;
     public GameObject m_floorPrefab;
 
+    bool m_skipEnemyTurn = false;
+
     public void Grow()
     {
         m_currentPhase++;
         if (m_currentPhase >= 4)
         {
-            GameMaster.Instance.StartNewGame();
+            GameOverWindow.Instance.Show();
         }
         else
         {
+            if(m_currentPhase != 0)
+            {
+                m_skipEnemyTurn = true;
+            }
             AdditiveLoadLevel(LevelGenerator.GenerateLevel(m_currentPhase));
         }
     }
@@ -270,6 +276,12 @@ public class Room : SingletonMonoBehaviour<Room>
 
     public void OnPlayerMoved()
     {
+        if(m_skipEnemyTurn)
+        {
+            m_skipEnemyTurn = false;
+            return;
+        }
+
         List<UnitBase> obstacles = new List<UnitBase>();
         obstacles.AddRange(m_obstacles);
         foreach (UnitBase obstacle in m_obstacles)

@@ -123,9 +123,9 @@ public class EnemyUnit : UnitBase
             }
             else
             {
-                Debug.LogError("Error in EnemyUnit.OnPlayerMoved - no path found to player.");
+                // this is fine
+                //Debug.LogError("Error in EnemyUnit.OnPlayerMoved - no path found to player.");
             }
-
 
             //Room.Instance.MoveUnit(this, (Grid.eDirection)UnityEngine.Random.Range(0, 4));
         }

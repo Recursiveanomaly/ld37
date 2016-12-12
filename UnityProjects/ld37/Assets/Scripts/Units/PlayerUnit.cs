@@ -12,8 +12,12 @@ public class PlayerUnit : UnitBase
 
     Grid.eDirection? m_queuedMove = null;
 
+    bool m_dead = false;
+
     private void Update()
     {
+        if (m_dead) return;
+
         m_moveCooldownTimer -= Time.deltaTime;
 
         if (m_moveCooldownTimer < c_moveCooldownMax / 3f)
@@ -49,6 +53,7 @@ public class PlayerUnit : UnitBase
     {
         // game over man, game over
         GameMaster.Instance.OnGameOver();
+        m_dead = true;
         base.KillUnit();
     }
 
@@ -57,6 +62,12 @@ public class PlayerUnit : UnitBase
         base.AwardKill();
 
         LevelUp();
+    }
+
+    public override void ResetForNewGame()
+    {
+        m_dead = false;
+        base.ResetForNewGame();
     }
 
     public void LevelUp()

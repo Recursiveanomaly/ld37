@@ -55,15 +55,23 @@ public class UnitBase : MonoBehaviour
         return false;
     }
 
+    Sequence m_moveSequence;
+
     public virtual void OnUnitWasMoved(bool warp, float delay)
     {
+        if (m_moveSequence != null)
+        {
+            m_moveSequence.Pause();
+            m_moveSequence = null;
+        }
+
         // set new position
         if(!warp)
         {
-            Sequence sequence = DOTween.Sequence();
-            sequence.PrependInterval(delay);
-            sequence.Append(transform.DOMove(Grid.GetPositionFromCoordinate(m_coordinate), 0.15f));
-            sequence.Play();
+            m_moveSequence = DOTween.Sequence();
+            m_moveSequence.PrependInterval(delay);
+            m_moveSequence.Append(transform.DOMove(Grid.GetPositionFromCoordinate(m_coordinate), 0.15f).SetEase(Ease.InOutExpo));
+            m_moveSequence.Play();
         }
         else
         {
