@@ -56,7 +56,7 @@ public class EnemyUnit : UnitBase
 
     public override void OnUnitWasMoved(bool warp, float delay)
     {
-        base.OnUnitWasMoved(warp, 0.1f);
+        base.OnUnitWasMoved(warp, 0.15f);
         if (m_isDead)
         {
             return;

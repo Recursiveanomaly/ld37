@@ -1,4 +1,5 @@
-﻿using SettlersEngine;
+﻿using DG.Tweening;
+using SettlersEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ public class Room : SingletonMonoBehaviour<Room>
             {
                 m_skipEnemyTurn = true;
             }
-            AdditiveLoadLevel(LevelGenerator.GenerateLevel(m_currentPhase));
+            StartCoroutine(AdditiveLoadLevel(LevelGenerator.GenerateLevel(m_currentPhase)));
         }
     }
 
@@ -45,9 +46,12 @@ public class Room : SingletonMonoBehaviour<Room>
 
     public List<Sprite> m_enemySprites = new List<Sprite>();
 
+    public bool ControlsLocked { get; private set; }
+
     public void ResetRoom()
     {
         UnloadCurrentLevel();
+        ControlsLocked = false;
     }
 
     private void UnloadCurrentLevel()
@@ -96,12 +100,27 @@ public class Room : SingletonMonoBehaviour<Room>
         }
     }
 
-    public void AdditiveLoadLevel(LevelDefinition levelDefiniton)
+    const float c_tweenTime = 0.15f;
+    const float c_stepTime = 0.005f;
+    const float c_tweenDistance = 1f;
+
+    public IEnumerator AdditiveLoadLevel(LevelDefinition levelDefiniton)
     {
+        ControlsLocked = true;
+
         // clean up walls
         foreach (GameObject wallObject in m_walls.Values)
         {
-            GameObject.Destroy(wallObject.gameObject);
+            SpriteRenderer spriteRenderer = wallObject.GetComponentInChildren<SpriteRenderer>();
+            if(spriteRenderer != null)
+            {
+                DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 0), c_tweenTime).SetOptions(true);
+            }
+            wallObject.transform.DOMoveY(wallObject.transform.position.y + c_tweenDistance, c_tweenTime).OnComplete(() =>
+            {
+                GameObject.Destroy(wallObject.gameObject);
+            });
+            yield return new WaitForSeconds(c_stepTime);
         }
         m_walls.Clear();
 
@@ -121,24 +140,42 @@ public class Room : SingletonMonoBehaviour<Room>
             if(!m_grid.IsCoordinateWithinGrid(coordinate))
             {
                 GameObject floorTile = GameObject.Instantiate(m_floorPrefab, transform);
-                floorTile.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate);
+                floorTile.transform.localPosition = Grid.GetPositionFromCoordinate(coordinate) + new Vector3(0, -c_tweenDistance, 0);
                 m_floorTiles.Add(floorTile);
+
+                SpriteRenderer spriteRenderer = floorTile.GetComponentInChildren<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = new Color(1, 1, 1, 0);
+                    DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 1), c_tweenTime).SetOptions(true);
+                }
+                floorTile.transform.DOMoveY(floorTile.transform.position.y + c_tweenDistance, c_tweenTime);
             }
+            yield return new WaitForSeconds(c_stepTime);
         }
         m_grid.SetGridPositions(levelDefiniton.m_mapValidCoordinates);
 
         // add the walls
         foreach (Grid.Coordinate coordinate in m_grid.m_gridValidArea)
         {
-            TryAddWall(coordinate, 1, 0);
-            TryAddWall(coordinate, -1, 0);
-            TryAddWall(coordinate, 0, 1);
-            TryAddWall(coordinate, 0, -1);
+            //yield return StartCoroutine(TryAddWall(coordinate, 1, 0));
+            //yield return StartCoroutine(TryAddWall(coordinate, -1, 0));
+            //yield return StartCoroutine(TryAddWall(coordinate, 0, 1));
+            //yield return StartCoroutine(TryAddWall(coordinate, 0, -1));
 
-            TryAddWall(coordinate, 1, 1);
-            TryAddWall(coordinate, -1, 1);
-            TryAddWall(coordinate, 1, -1);
-            TryAddWall(coordinate, -1, -1);
+            //yield return StartCoroutine(TryAddWall(coordinate, 1, 1));
+            //yield return StartCoroutine(TryAddWall(coordinate, -1, 1));
+            //yield return StartCoroutine(TryAddWall(coordinate, 1, -1));
+            //yield return StartCoroutine(TryAddWall(coordinate, -1, -1));
+            if (TryAddWall(coordinate, 1, 0)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, -1, 0)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, 0, 1)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, 0, -1)) yield return new WaitForSeconds(c_stepTime);
+
+            if (TryAddWall(coordinate, 1, 1)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, -1, 1)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, 1, -1)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, -1, -1)) yield return new WaitForSeconds(c_stepTime);
         }
 
         // add the obstacles
@@ -146,13 +183,22 @@ public class Room : SingletonMonoBehaviour<Room>
         foreach (KeyValuePair<Grid.Coordinate, LevelDefinition.eObstacleType> obstacleDefinition in levelDefiniton.m_obstacles)
         {
             UnitBase obstacle = GameObject.Instantiate(GetObstaclePrefab(obstacleDefinition.Value), transform);
-            obstacle.transform.localPosition = Grid.GetPositionFromCoordinate(obstacleDefinition.Key);
             if(obstacle is DoorUnit)
             {
                 doors.Add(obstacle as DoorUnit);
             }
             m_obstacles.Add(obstacle);
             m_grid.TrySetUnitCoordinate(obstacle, obstacleDefinition.Key, true);
+            obstacle.transform.localPosition = Grid.GetPositionFromCoordinate(obstacleDefinition.Key) + new Vector3(0, c_tweenDistance, 0);
+
+            SpriteRenderer spriteRenderer = obstacle.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = new Color(1, 1, 1, 0);
+                DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 1), c_tweenTime).SetOptions(true);
+            }
+            obstacle.transform.DOMoveY(obstacle.transform.position.y - c_tweenDistance, c_tweenTime);
+            yield return new WaitForSeconds(c_stepTime);
         }
 
         // link up random doors
@@ -224,6 +270,9 @@ public class Room : SingletonMonoBehaviour<Room>
 
         // this will trigger enemy color change
         OnPlayerLeveledUp();
+        yield return new WaitForSeconds(c_tweenTime);
+
+        ControlsLocked = false;
     }
 
     public Grid.Coordinate GetPlayerCoordinate()
@@ -260,7 +309,7 @@ public class Room : SingletonMonoBehaviour<Room>
         GameObject.Destroy(enemyUnit.gameObject);
     }
 
-    private void TryAddWall(Grid.Coordinate baseCoordinate, int xOffset, int yOffset)
+    private bool TryAddWall(Grid.Coordinate baseCoordinate, int xOffset, int yOffset)
     {
         Grid.Coordinate offsetCoordinate = new Grid.Coordinate(baseCoordinate);
         offsetCoordinate.x += xOffset;
@@ -269,9 +318,20 @@ public class Room : SingletonMonoBehaviour<Room>
         if(!m_walls.ContainsKey(offsetCoordinate) && !m_grid.IsCoordinateWithinGrid(offsetCoordinate))
         {
             GameObject wallObject = GameObject.Instantiate(m_wallPrefab, transform);
-            wallObject.transform.localPosition = Grid.GetPositionFromCoordinate(offsetCoordinate);
+            wallObject.transform.localPosition = Grid.GetPositionFromCoordinate(offsetCoordinate) + new Vector3(0, -c_tweenDistance, 0);
             m_walls.Add(offsetCoordinate, wallObject);
+
+            SpriteRenderer spriteRenderer = wallObject.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = new Color(1, 1, 1, 0);
+                DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 1), c_tweenTime).SetOptions(true);
+            }
+            wallObject.transform.DOMoveY(wallObject.transform.position.y + c_tweenDistance, c_tweenTime);
+
+            return true;
         }
+        return false;
     }
 
     public void OnPlayerMoved()

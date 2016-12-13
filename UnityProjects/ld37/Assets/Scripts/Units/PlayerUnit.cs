@@ -16,7 +16,7 @@ public class PlayerUnit : UnitBase
 
     private void Update()
     {
-        if (m_dead) return;
+        if (m_dead || Room.Instance.ControlsLocked) return;
 
         m_moveCooldownTimer -= Time.deltaTime;
 
