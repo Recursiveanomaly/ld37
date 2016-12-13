@@ -107,6 +107,8 @@ public class Room : SingletonMonoBehaviour<Room>
     public IEnumerator AdditiveLoadLevel(LevelDefinition levelDefiniton)
     {
         ControlsLocked = true;
+        int stepMax = 1 + levelDefiniton.m_difficulty;
+        int stepCounter = stepMax;
 
         // clean up walls
         foreach (GameObject wallObject in m_walls.Values)
@@ -120,7 +122,12 @@ public class Room : SingletonMonoBehaviour<Room>
             {
                 GameObject.Destroy(wallObject.gameObject);
             });
-            yield return new WaitForSeconds(c_stepTime);
+            stepCounter--;
+            if(stepCounter <= 0)
+            {
+                stepCounter = stepMax;
+                yield return new WaitForSeconds(c_stepTime);
+            }
         }
         m_walls.Clear();
 
@@ -151,7 +158,12 @@ public class Room : SingletonMonoBehaviour<Room>
                 }
                 floorTile.transform.DOMoveY(floorTile.transform.position.y + c_tweenDistance, c_tweenTime);
             }
-            yield return new WaitForSeconds(c_stepTime);
+            stepCounter--;
+            if (stepCounter <= 0)
+            {
+                stepCounter = stepMax;
+                yield return new WaitForSeconds(c_stepTime);
+            }
         }
         m_grid.SetGridPositions(levelDefiniton.m_mapValidCoordinates);
 
@@ -167,15 +179,79 @@ public class Room : SingletonMonoBehaviour<Room>
             //yield return StartCoroutine(TryAddWall(coordinate, -1, 1));
             //yield return StartCoroutine(TryAddWall(coordinate, 1, -1));
             //yield return StartCoroutine(TryAddWall(coordinate, -1, -1));
-            if (TryAddWall(coordinate, 1, 0)) yield return new WaitForSeconds(c_stepTime);
-            if (TryAddWall(coordinate, -1, 0)) yield return new WaitForSeconds(c_stepTime);
-            if (TryAddWall(coordinate, 0, 1)) yield return new WaitForSeconds(c_stepTime);
-            if (TryAddWall(coordinate, 0, -1)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, 1, 0))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
+            if (TryAddWall(coordinate, -1, 0))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
+            if (TryAddWall(coordinate, 0, 1))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
+            if (TryAddWall(coordinate, 0, -1))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
 
-            if (TryAddWall(coordinate, 1, 1)) yield return new WaitForSeconds(c_stepTime);
-            if (TryAddWall(coordinate, -1, 1)) yield return new WaitForSeconds(c_stepTime);
-            if (TryAddWall(coordinate, 1, -1)) yield return new WaitForSeconds(c_stepTime);
-            if (TryAddWall(coordinate, -1, -1)) yield return new WaitForSeconds(c_stepTime);
+            if (TryAddWall(coordinate, 1, 1))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
+            if (TryAddWall(coordinate, -1, 1))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
+            if (TryAddWall(coordinate, 1, -1))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
+            if (TryAddWall(coordinate, -1, -1))
+            {
+                stepCounter--;
+                if (stepCounter <= 0)
+                {
+                    stepCounter = stepMax;
+                    yield return new WaitForSeconds(c_stepTime);
+                }
+            }
         }
 
         // add the obstacles
@@ -198,7 +274,12 @@ public class Room : SingletonMonoBehaviour<Room>
                 DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 1), c_tweenTime).SetOptions(true);
             }
             obstacle.transform.DOMoveY(obstacle.transform.position.y - c_tweenDistance, c_tweenTime);
-            yield return new WaitForSeconds(c_stepTime);
+            stepCounter--;
+            if (stepCounter <= 0)
+            {
+                stepCounter = stepMax;
+                yield return new WaitForSeconds(c_stepTime);
+            }
         }
 
         // link up random doors
@@ -235,6 +316,17 @@ public class Room : SingletonMonoBehaviour<Room>
             m_player = GameObject.Instantiate(m_playerPrefab, transform);
             m_player.ResetForNewGame();
             m_grid.TrySetUnitCoordinate(m_player, new Grid.Coordinate(16, 16), true);
+
+            m_player.transform.localPosition = m_player.transform.localPosition + new Vector3(0, c_tweenDistance * 3, 0);
+
+            SpriteRenderer spriteRenderer = m_player.GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = new Color(1, 1, 1, 0);
+                DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 1), c_tweenTime * 3).SetOptions(true);
+            }
+            m_player.transform.DOMoveY(m_player.transform.position.y - c_tweenDistance * 3, c_tweenTime * 3);
+            yield return new WaitForSeconds(c_stepTime * 3);
         }
 
         // add the enemies
@@ -265,6 +357,17 @@ public class Room : SingletonMonoBehaviour<Room>
             {
                 m_enemies.Add(enemyUnit);
                 m_grid.TrySetUnitCoordinate(enemyUnit, startingCoordinate, true);
+
+                enemyUnit.transform.localPosition = enemyUnit.transform.localPosition + new Vector3(0, c_tweenDistance, 0);
+
+                SpriteRenderer spriteRenderer = enemyUnit.GetComponentInChildren<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    spriteRenderer.color = new Color(1, 1, 1, 0);
+                    DOTween.To(() => spriteRenderer.color, x => spriteRenderer.color = x, new Color(1, 1, 1, 1), c_tweenTime).SetOptions(true);
+                }
+                enemyUnit.transform.DOMoveY(enemyUnit.transform.position.y - c_tweenDistance, c_tweenTime);
+                yield return new WaitForSeconds(c_stepTime);
             }
         }
 
