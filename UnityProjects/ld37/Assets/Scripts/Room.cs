@@ -29,7 +29,8 @@ public class Room : SingletonMonoBehaviour<Room>
         m_currentPhase++;
         if (m_currentPhase >= 4)
         {
-            GameOverWindow.Instance.Show();
+            GameOverWindow.Instance.Show(true);
+            ControlsLocked = true;
         }
         else
         {

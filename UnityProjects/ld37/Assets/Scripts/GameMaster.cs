@@ -31,6 +31,6 @@ public class GameMaster : SingletonMonoBehaviour<GameMaster>
 
     public void OnGameOver()
     {
-        GameOverWindow.Instance.Show();
+        GameOverWindow.Instance.Show(false);
     }
 }
